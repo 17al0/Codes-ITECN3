@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+#define filas 3
+#define columnas 4
+
+int simple[filas][columnas];
+int doble[filas][columnas] = {
+    {2, 4, 6, 8},
+    {10, 12, 14, 16},
+    {18, 20, 22, 24}
+};
+
+void mostrar_primer_matriz();
+void multiplicar_matrices(int resultado[filas][columnas], int multiplicador);
+
+int main() {
+    int resultado[filas][columnas];
+    int multiplicador;
+
+    printf("Ingrese los elementos de la matriz simple (3x4):\n");
+    for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
+            printf("Elemento [%d][%d]: ", i, j);
+            scanf("%d", &simple[i][j]);
+        }
+    }
+
+    printf("Ingrese el numero por el cual desea multiplicar la matriz simple: ");
+    scanf("%d", &multiplicador);
+
+    mostrar_primer_matriz();
+    multiplicar_matrices(resultado, multiplicador);
+
+    printf("\nResultado de la multiplicacion:\n");
+    for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
+            printf("%d ", resultado[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
+
+void mostrar_primer_matriz() {
+    printf("Matriz simple:\n");
+    for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
+            printf("%d ", simple[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void multiplicar_matrices(int resultado[filas][columnas], int multiplicador) {
+    for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
+            resultado[i][j] = simple[i][j] * multiplicador;
+        }
+    }
+}
