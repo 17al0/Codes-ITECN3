@@ -1,0 +1,104 @@
+class MiembroEscuela:
+    def __init__(self, nombre_completo, años):
+        self.nombre_completo = nombre_completo
+        self.años = años
+    
+    def ver_detalles(self):
+        print(f"Miembro: {self.nombre_completo} | Edad: {self.años}")
+
+class Estudiante(MiembroEscuela):
+    def __init__(self, nombre_completo, años, legajo):
+        super().__init__(nombre_completo, años)
+        self.legajo = legajo
+        self.clases_inscriptas = []
+        self.carrera = "Sin asignar"
+    
+    def matricular_en_clase(self, clase):
+        self.clases_inscriptas.append(clase)
+        print(f"Matrícula exitosa: {clase.titulo} - {self.nombre_completo}")
+    
+    def ver_detalles(self):
+        super().ver_detalles()
+        print(f"Legajo: {self.legajo}")
+        print(f"Carrera: {self.carrera}")
+        print("Clases activas:")
+        for clase in self.clases_inscriptas:
+            print(f"• {clase.titulo}")
+
+class Profesor(MiembroEscuela):
+    def __init__(self, nombre_completo, años, departamento):
+        super().__init__(nombre_completo, años)
+        self.departamento = departamento
+        self.clases_asignadas = []
+        self.años_experiencia = 0
+    
+    def agregar_clase(self, clase):
+        self.clases_asignadas.append(clase)
+        print(f"Nueva asignación: {clase.titulo} → {self.nombre_completo}")
+    
+    def ver_detalles(self):
+        super().ver_detalles()
+        print(f"Departamento: {self.departamento}")
+        print(f"Experiencia: {self.años_experiencia} años")
+        print("Clases a cargo:")
+        for clase in self.clases_asignadas:
+            print(f"» {clase.titulo}")
+
+class ClaseAcademica:
+    def __init__(self, titulo, identificador):
+        self.titulo = titulo
+        self.identificador = identificador
+    
+    def mostrar_programa(self):
+        print(f"[{self.identificador}] {self.titulo}")
+
+class ClasePresencial(ClaseAcademica):
+    def __init__(self, titulo, identificador, ubicacion):
+        super().__init__(titulo, identificador)
+        self.ubicacion = ubicacion
+        self.horario = "Por definir"
+    
+    def mostrar_programa(self):
+        super().mostrar_programa()
+        print(f"Tipo: Presencial | Sala: {self.ubicacion}")
+        print(f"Horario: {self.horario}")
+
+class ClaseVirtual(ClaseAcademica):
+    def __init__(self, titulo, identificador, entorno_virtual):
+        super().__init__(titulo, identificador)
+        self.entorno_virtual = entorno_virtual
+        self.enlace_sesion = "Disponible en plataforma"
+    
+    def mostrar_programa(self):
+        super().mostrar_programa()
+        print(f"Tipo: Virtual | Plataforma: {self.entorno_virtual}")
+        print(f"Acceso: {self.enlace_sesion}")
+# Creación de instancias
+fisica = ClasePresencial("Física Aplicada", "FIS-301", "Laboratorio 5")
+programacion_web = ClaseVirtual("Desarrollo Web", "DW-205", "Campus Virtual")
+
+alumno_nuevo = Estudiante("Lucía Fernández", 21, "EST-2024")
+alumno_nuevo.carrera = "Ingeniería en Sistemas"
+
+profesor_titular = Profesor("Dr. Roberto Jiménez", 48, "Tecnología")
+profesor_titular.años_experiencia = 15
+
+# Interacciones del sistema
+alumno_nuevo.matricular_en_clase(fisica)
+alumno_nuevo.matricular_en_clase(programacion_web)
+
+profesor_titular.agregar_clase(fisica)
+profesor_titular.agregar_clase(programacion_web)
+
+# Visualización de datos
+print("\n=== DATOS DEL ESTUDIANTE ===")
+alumno_nuevo.ver_detalles()
+
+print("\n=== DATOS DEL PROFESOR ===")
+profesor_titular.ver_detalles()
+
+print("\n=== DETALLES DE CLASES ===")
+fisica.mostrar_programa()
+programacion_web.mostrar_programa()
+
+
