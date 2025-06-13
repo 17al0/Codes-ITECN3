@@ -1,0 +1,57 @@
+class CuentaBancaria:
+    def __init__(self, numero_cuenta, saldo_inicial=0.0):
+        self.numero_cuenta = numero_cuenta
+        self.saldo = saldo_inicial
+
+    def depositar(self, cantidad):
+        if cantidad > 0:
+            self.saldo += cantidad
+            return True
+        return False
+
+    def retirar(self, cantidad):
+        if cantidad > 0 and self.saldo >= cantidad:
+            self.saldo -= cantidad
+            return True
+        return False
+
+    def mostrar_saldo(self):
+        print(f"Saldo actual: {self.saldo:.2f}")
+
+
+if __name__ == "__main__":
+    numero = input("Ingrese el número de cuenta: ")
+    saldo_str = input("Ingrese el saldo inicial: ")
+    
+    try:
+        saldo = float(saldo_str)
+    except ValueError:
+        print("Saldo invalido. Se usará 0.0 por defecto.")
+        saldo = 0.0
+
+    cuenta = CuentaBancaria(numero, saldo)
+
+    cuenta.mostrar_saldo()
+
+    if cuenta.depositar(50):
+        print("Deposito exitoso")
+    else:
+        print("Error en deposito")
+    cuenta.mostrar_saldo()
+
+    if cuenta.retirar(30):
+        print("Retiro exitoso")
+    else:
+        print("Error en retiro")
+    cuenta.mostrar_saldo()
+
+    if cuenta.retirar(200):
+        print("Retiro exitoso")
+    else:
+        print("Error en retiro: saldo insuficiente")
+    cuenta.mostrar_saldo()
+
+    if cuenta.depositar(-10):
+        print("Deposito exitoso")
+    else:
+        print("Error en deposito: cantidad invalida")
