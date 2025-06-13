@@ -1,0 +1,273 @@
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define PORT 8080
+
+char tablero[9];
+char mi_simbolo;
+char oponente_simbolo;
+
+void inicializar_tablero() {
+    for (int i = 0; i < 9; i++) {
+        tablero[i] = '1' + i;
+    }
+}
+
+void imprimir_tablero() {
+    printf("\n");
+    printf(" %c | %c | %c\n", tablero[0], tablero[1], tablero[2]);
+    printf("---+---+---\n");
+    printf(" %c | %c | %c\n", tablero[3], tablero[4], tablero[5]);
+    printf("---+---+---\n");
+    printf(" %c | %c | %c\n", tablero[6], tablero[7], tablero[8]);
+    printf("\n");
+}
+
+int verificar_ganador(char simbolo) {
+    // Filas
+    for (int i = 0; i < 9; i += 3) {
+        if (tablero[i] == simbolo && tablero[i + 1] == simbolo && tablero[i + 2] == simbolo)
+            return 1;
+    }
+
+    // Columnas
+    for (int i = 0; i < 3; i++) {
+        if (tablero[i] == simbolo && tablero[i + 3] == simbolo && tablero[i + 6] == simbolo)
+            return 1;
+    }
+
+    // Diagonales
+    if (tablero[0] == simbolo && tablero[4] == simbolo && tablero[8] == simbolo)
+        return 1;
+    if (tablero[2] == simbolo && tablero[4] == simbolo && tablero[6] == simbolo)
+        return 1;
+
+    return 0;
+}
+
+int tablero_lleno() {
+    for (int i = 0; i < 9; i++) {
+        if (tablero[i] != 'X' && tablero[i] != 'O')
+            return 0;
+    }
+    return 1;
+}
+
+void jugar_servidor(int socket_cliente) {
+    mi_simbolo = 'X';
+    oponente_simbolo = 'O';
+    int movimiento;
+
+    while (1) {
+        imprimir_tablero();
+
+        // Turno del servidor (X)
+        int movimiento_valido = 0;
+        while (!movimiento_valido) {
+            printf("Tu turno [X] (1-9): ");
+            scanf("%d", &movimiento);
+            movimiento--;
+
+            if (movimiento < 0 || movimiento > 8) {
+                printf("Movimiento invalido. Ingresa 1-9.\n");
+            }
+            else if (tablero[movimiento] == 'X' || tablero[movimiento] == 'O') {
+                printf("Casilla ocupada. Elige otra.\n");
+            }
+            else {
+                movimiento_valido = 1;
+            }
+        }
+
+        tablero[movimiento] = mi_simbolo;
+        send(socket_cliente, tablero, 9, 0);
+
+        if (verificar_ganador(mi_simbolo)) {
+            imprimir_tablero();
+            printf("\nGanaste!\n");
+            break;
+        }
+
+        if (tablero_lleno()) {
+            imprimir_tablero();
+            printf("\nEmpate!\n");
+            break;
+        }
+
+        // Turno del cliente
+        printf("\nEsperando movimiento del oponente...\n");
+        recv(socket_cliente, tablero, 9, 0);
+
+        if (verificar_ganador(oponente_simbolo)) {
+            imprimir_tablero();
+            printf("\nPerdiste!\n");
+            break;
+        }
+
+        if (tablero_lleno()) {
+            imprimir_tablero();
+            printf("\nEmpate!\n");
+            break;
+        }
+    }
+}
+
+void jugar_cliente(int socket_servidor) {
+    mi_simbolo = 'O';
+    oponente_simbolo = 'X';
+
+    while (1) {
+        // Esperar turno del servidor
+        printf("\nEsperando movimiento del oponente...\n");
+        recv(socket_servidor, tablero, 9, 0);
+
+        if (verificar_ganador(oponente_simbolo)) {
+            imprimir_tablero();
+            printf("\nPerdiste!\n");
+            break;
+        }
+
+        if (tablero_lleno()) {
+            imprimir_tablero();
+            printf("\nEmpate!\n");
+            break;
+        }
+
+        // Turno del cliente
+        imprimir_tablero();
+        int movimiento_valido = 0;
+        int movimiento;
+
+        while (!movimiento_valido) {
+            printf("Tu turno [O] (1-9): ");
+            scanf("%d", &movimiento);
+            movimiento--;
+
+            if (movimiento < 0 || movimiento > 8) {
+                printf("Movimiento invalido. Ingresa 1-9.\n");
+            }
+            else if (tablero[movimiento] == 'X' || tablero[movimiento] == 'O') {
+                printf("Casilla ocupada. Elige otra.\n");
+            }
+            else {
+                movimiento_valido = 1;
+            }
+        }
+
+        tablero[movimiento] = mi_simbolo;
+        send(socket_servidor, tablero, 9, 0);
+
+        if (verificar_ganador(mi_simbolo)) {
+            imprimir_tablero();
+            printf("\nGanaste!\n");
+            break;
+        }
+
+        if (tablero_lleno()) {
+            imprimir_tablero();
+            printf("\nEmpate!\n");
+            break;
+        }
+    }
+}
+
+int main() {
+#ifdef _WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+        printf("Error inicializando Winsock\n");
+        return 1;
+    }
+#endif
+
+    inicializar_tablero();
+    int opcion;
+
+    printf("1. Crear partida (X)\n2. Unirse a partida (O)\nOpcion: ");
+    scanf("%d", &opcion);
+
+    if (opcion == 1) {  // Servidor
+        int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_fd < 0) {
+            printf("Error creando socket\n");
+            return 1;
+        }
+
+        struct sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(PORT);
+        addr.sin_addr.s_addr = INADDR_ANY;
+
+        int opt = 1;
+        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
+
+        if (bind(server_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+            printf("Error en bind\n");
+            return 1;
+        }
+
+        listen(server_fd, 1);
+        printf("Esperando conexion en puerto %d...\n", PORT);
+
+        int client_fd = accept(server_fd, NULL, NULL);
+        if (client_fd < 0) {
+            printf("Error aceptando conexion\n");
+            return 1;
+        }
+        printf("Cliente conectado!\n");
+
+        jugar_servidor(client_fd);
+
+#ifdef _WIN32
+        closesocket(client_fd);
+        closesocket(server_fd);
+#else
+        close(client_fd);
+        close(server_fd);
+#endif
+    }
+    else {  // Cliente
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock < 0) {
+            printf("Error creando socket\n");
+            return 1;
+        }
+
+        struct sockaddr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(PORT);
+        addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+        
+        if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+            printf("Error en conexion\n");
+            return 1;
+        }
+
+        printf("Conectado al servidor!\n");
+        jugar_cliente(sock);
+
+#ifdef _WIN32
+        closesocket(sock);
+#else
+        close(sock);
+#endif
+    }
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
+    return 0;
+}
