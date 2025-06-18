@@ -1,0 +1,39 @@
+#include <stdio.h>
+
+#define MESES 12
+#define PRODUCTOS 3
+
+int main() {
+    char *nombres[] = {"Tomates", "Papas", "Zanahorias"};
+    float cosechas[PRODUCTOS][MESES];
+    float total, promedio[PRODUCTOS];
+    float max = -1, min = 999999;
+    int pos_max, pos_min;
+    for (int mes = 0; mes < MESES; mes++) {
+        printf("\nMes %d:\n", mes + 1);
+        for (int prod = 0; prod < PRODUCTOS; prod++) {
+            printf("%s: ", nombres[prod]);
+            scanf("%f", &cosechas[prod][mes]);
+        }
+    }
+    printf("\nPromedio anual:\n");
+    for (int prod = 0; prod < PRODUCTOS; prod++) {
+        total = 0;
+        for (int mes = 0; mes < MESES; mes++) {
+            total += cosechas[prod][mes];
+        }
+        promedio[prod] = total / MESES;
+        printf("%s: %.2f kg/mes\n", nombres[prod], promedio[prod]);
+        if (promedio[prod] > max) {
+            max = promedio[prod];
+            pos_max = prod;
+        }
+        if (promedio[prod] < min) {
+            min = promedio[prod];
+            pos_min = prod;
+        }
+    }
+    printf("\nMayor cosecha: %s (%.2f kg/mes)\n", nombres[pos_max], max);
+    printf("Menor cosecha: %s (%.2f kg/mes)\n", nombres[pos_min], min);
+    return 0;
+}
