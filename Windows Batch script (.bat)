@@ -1,0 +1,67 @@
+@echo off
+setlocal enabledelayedexpansion
+
+set /p niveles=Ingrese el numero de niveles: 
+set /p hijos=Ingrese el numero de hijos por nodo: 
+
+:: Validar entradas
+if !niveles! lss 1 (echo Error: niveles debe ser al menos 1 & exit /b 1)
+if !hijos! lss 1 (echo Error: hijos debe ser al menos 1 & exit /b 1)
+
+:: Crear carpeta para organización
+set carpeta=arbol_!niveles!_!hijos!
+mkdir "!carpeta!" 2>nul
+
+:: Contador global de nodos
+set /a total_nodos=1
+
+:: Crear proceso raiz
+set pid_raiz=!random!!random!
+echo [Raiz] PID: !pid_raiz!, Nivel: 0, Padre: 0 > "!carpeta!\raiz.txt"
+echo Creado: !carpeta!\raiz.txt
+
+:: Iniciar creación de hijos
+if !niveles! gtr 1 (
+    set /a nivel_actual=1
+    call :crear_nivel "!carpeta!" !nivel_actual! !pid_raiz! !niveles! !hijos!
+)
+
+:: Calcular total teórico
+set /a total_teorico=0
+set /a potencia=1
+for /l %%i in (0,1,%niveles%) do (
+    if %%i neq 0 set /a potencia*=%hijos%
+    set /a total_teorico+=potencia
+)
+
+echo.
+echo Arbol creado exitosamente!
+echo Nodos creados: !total_nodos! (Teorico: !total_teorico!)
+echo Ubicacion: !carpeta!\
+dir /b "!carpeta!\"
+exit /b
+
+:: FUNCION RECURSIVA PARA CREAR NODOS
+:crear_nivel
+setlocal enabledelayedexpansion
+set carpeta=%~1
+set nivel_actual=%~2
+set pid_padre=%~3
+set niveles=%~4
+set hijos_por_nodo=%~5
+
+for /l %%i in (1,1,%hijos_por_nodo%) do (
+    set pid_hijo=!random!!random!
+    set /a total_nodos+=1
+    set archivo=!carpeta!\nodo_!nivel_actual!_!pid_hijo!.txt
+
+    echo [Hijo] PID: !pid_hijo!, Nivel: !nivel_actual!, Padre: !pid_padre! > "!archivo!"
+    echo Creado: !archivo!
+
+    set /a sig_nivel=nivel_actual + 1
+    if !sig_nivel! leq !niveles! (
+        call :crear_nivel "!carpeta!" !sig_nivel! !pid_hijo! !niveles! !hijos_por_nodo!
+    )
+)
+endlocal
+exit /b
