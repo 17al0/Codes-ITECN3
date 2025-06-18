@@ -1,0 +1,62 @@
+#include <LiquidCrystal.h>
+
+// Pines del LCD
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+
+// Pines de los LEDs
+int rojo = 13;
+int amarillo = 12;
+int verde = 11;
+
+void setup() {
+  // Inicializa los pines de los LEDs como salidas
+  pinMode(rojo, OUTPUT);
+  pinMode(amarillo, OUTPUT);
+  pinMode(verde, OUTPUT);
+  
+  // Inicializa el LCD
+  lcd.begin(16, 2);
+  lcd.print("Semaforo:"); // Imprime el encabezado en la pantalla
+}
+
+void loop() {
+  // Led rojo encendido
+  digitalWrite(rojo, HIGH);
+  digitalWrite(amarillo, LOW);
+  digitalWrite(verde, LOW);
+  lcd.setCursor(0, 1); // Coloca el cursor en la segunda línea
+  lcd.print("Rojo      ");
+  delay(10000); // Espera 5 segundos
+  
+  // Led amarillo encendido
+  digitalWrite(rojo, LOW);
+  digitalWrite(amarillo, HIGH);
+  digitalWrite(verde, LOW);
+  lcd.setCursor(0, 1);
+  lcd.print("Amarillo  ");
+  delay(3000); // Espera 3 segundos
+  
+  // Led verde encendido
+  digitalWrite(rojo, LOW);
+  digitalWrite(amarillo, LOW);
+  digitalWrite(verde, HIGH);
+  lcd.setCursor(0, 1);
+  lcd.print("Verde     ");
+  delay(10000); // Espera 5 segundos
+  
+  // Led amarillo encendido
+  digitalWrite(rojo, LOW);
+  digitalWrite(amarillo, HIGH);
+  digitalWrite(verde, LOW);
+  lcd.setCursor(0, 1);
+  lcd.print("Amarillo  ");
+  delay(3000); // Espera 3 segundos
+  
+  // Led rojo encendido
+  digitalWrite(rojo, HIGH);
+  digitalWrite(amarillo, LOW);
+  digitalWrite(verde, LOW);
+  lcd.setCursor(0, 1);
+  lcd.print("Rojo      ");
+  delay(10000); // Espera 5 segundos
+}
