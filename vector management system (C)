@@ -1,0 +1,205 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX 1000
+
+int arr[MAX];
+int current_size = 0;
+int is_sorted = 0;
+
+// Prototipos de funciones
+void cargarVector();
+void imprimirVector();
+void ordenarVector();
+int busquedaSecuencial(int arr[], int n, int target, int *comparisons);
+int busquedaBinaria(int arr[], int n, int target, int *comparisons);
+void buscarSecuencial();
+void buscarBinaria();
+void compararMetodos();
+void bubbleSort(int arr[], int n, int *comparisons);
+void menu();
+
+int main() {
+    srand(time(NULL)); 
+    menu();
+    return 0;
+}
+
+// 1. Cargar vector con N elementos
+void cargarVector() {
+    printf("Ingrese el tamano del vector (maximo %d): ", MAX);
+    scanf("%d", &current_size);
+    if (current_size <= 0 || current_size > MAX) {
+        printf("Tamano invalido.\n");
+        current_size = 0;
+        return;
+    }
+    printf("Ingrese %d elementos:\n", current_size);
+    for (int i = 0; i < current_size; i++) {
+        scanf("%d", &arr[i]);
+    }
+    is_sorted = 0; 
+    printf("Vector cargado correctamente.\n");
+}
+
+// 2. Ordenar vector con burbuja optimizado
+void bubbleSort(int arr[], int n, int *comparisons) {
+    int i, j, temp;
+    int swapped;
+    *comparisons = 0;
+    for (i = 0; i < n - 1; i++) {
+        swapped = 0;
+        for (j = 0; j < n - i - 1; j++) {
+            (*comparisons)++;
+            if (arr[j] > arr[j + 1]) {
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+                swapped = 1;
+            }
+        }
+        if (!swapped) break; 
+    }
+}
+
+// 3. Busqueda secuencial
+int busquedaSecuencial(int arr[], int n, int target, int *comparisons) {
+    *comparisons = 0;
+    for (int i = 0; i < n; i++) {
+        (*comparisons)++;
+        if (arr[i] == target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// 4. Busqueda binaria 
+int busquedaBinaria(int arr[], int n, int target, int *comparisons) {
+    *comparisons = 0;
+    int left = 0;
+    int right = n - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        (*comparisons)++;
+        if (arr[mid] == target) {
+            return mid;
+        }
+        (*comparisons)++;
+        if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+
+// Menu: Ordenar vector
+void ordenarVector() {
+    if (current_size == 0) {
+        printf("El vector esta vacio.\n");
+        return;
+    }
+    int comparaciones = 0;
+    bubbleSort(arr, current_size, &comparaciones);
+    is_sorted = 1;
+    printf("Vector ordenado. Comparaciones realizadas: %d\n", comparaciones);
+}
+
+// Menu: Busqueda secuencial
+void buscarSecuencial() {
+    if (current_size == 0) {
+        printf("El vector esta vacio.\n");
+        return;
+    }
+    int target, comparaciones;
+    printf("Ingrese el valor a buscar: ");
+    scanf("%d", &target);
+    int pos = busquedaSecuencial(arr, current_size, target, &comparaciones);
+    if (pos == -1) {
+        printf("Valor no encontrado.\n");
+    } else {
+        printf("Valor encontrado en la posicion %d.\n", pos);
+    }
+    printf("Comparaciones realizadas: %d\n", comparaciones);
+}
+
+// Menu: Busqueda binaria
+void buscarBinaria() {
+    if (current_size == 0) {
+        printf("El vector esta vacio.\n");
+        return;
+    }
+    if (!is_sorted) {
+        printf("El vector no esta ordenado. Ordenando primero...\n");
+        ordenarVector();
+    }
+    int target, comparaciones;
+    printf("Ingrese el valor a buscar: ");
+    scanf("%d", &target);
+    int pos = busquedaBinaria(arr, current_size, target, &comparaciones);
+    if (pos == -1) {
+        printf("Valor no encontrado.\n");
+    } else {
+        printf("Valor encontrado en la posicion %d.\n", pos);
+    }
+    printf("Comparaciones realizadas: %d\n", comparaciones);
+}
+
+// 5. Comparacion de metodos 
+void compararMetodos() {
+    int sizes[] = {10, 100, 1000};
+    for (int i = 0; i < 3; i++) {
+        int size = sizes[i];
+        int vec_original[size];
+        int vec_ordenado[size];
+        
+        for (int j = 0; j < size; j++) {
+            vec_original[j] = rand() % (size * 10); 
+            vec_ordenado[j] = vec_original[j];
+        }
+        
+        int comparaciones_orden;
+        bubbleSort(vec_ordenado, size, &comparaciones_orden);
+        
+        int target = vec_ordenado[size / 2];
+        
+        int comp_secuencial;
+        busquedaSecuencial(vec_original, size, target, &comp_secuencial);
+        
+        int comp_binaria;
+        busquedaBinaria(vec_ordenado, size, target, &comp_binaria);
+        
+        printf("\n--- Prueba con %d elementos ---\n", size);
+        printf("Busqueda secuencial: %d comparaciones\n", comp_secuencial);
+        printf("Busqueda binaria: %d comparaciones\n", comp_binaria);
+    }
+}
+
+// Menu principal
+void menu() {
+    int opcion;
+    do {
+        printf("\n--- Menu ---\n");
+        printf("1. Cargar vector\n");
+        printf("2. Ordenar vector\n");
+        printf("3. Buscar (Binaria)\n");
+        printf("4. Buscar (Secuencial)\n");
+        printf("5. Comparar metodos\n");
+        printf("6. Salir\n");
+        printf("Seleccione una opcion: ");
+        scanf("%d", &opcion);
+        
+        switch(opcion) {
+            case 1: cargarVector(); break;
+            case 2: ordenarVector(); break;
+            case 3: buscarBinaria(); break;
+            case 4: buscarSecuencial(); break;
+            case 5: compararMetodos(); break;
+            case 6: printf("Saliendo...\n"); break;
+            default: printf("Opcion invalida.\n");
+        }
+    } while (opcion != 6);
+}
