@@ -1,0 +1,19 @@
+from datetime import datetime
+
+while True:
+    print("\nMenu de opciones:")
+    print("1. Saludar")
+    print("2. Mostrar año actual")
+    print("3. Salir")
+
+    opcion = input("Elija una opcion: ")
+
+    if opcion == "1":
+        print("¡Hola usuario!")
+    elif opcion == "2":
+        print("Estamos en el año", datetime.now().year)
+    elif opcion == "3":
+        print("¡Adios!")
+        break
+    else:
+        print("Opción inválida")
