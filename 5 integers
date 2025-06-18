@@ -1,0 +1,41 @@
+/*Si dentro de esos 5 números ingresados se cargo el número 5, llama a una función donde se multiplique el primer número ingresado por 5 e imprima por pantalla
+el resultado en la misma función, si por el contrario no se ingreso ningún número 5, se llame a una función donde se sumen los 5 valores agregados 
+y en la función main imprima el resultado.*/
+#include <stdio.h>
+int CIF(int n){
+    int resul=n*5;
+    printf("la multiplicacion con el primer numero X 5 es= %d\n", resul);
+    return resul;
+}
+int CNI(int ns[5]){
+    int suma=0;
+    for (int i=0;i<5;i++){
+        suma+=ns[i];
+    }
+    printf("la suma de los 5 valores es= %d\n", suma);
+    return suma;
+}
+int CEO(int ns[5]){
+    int EO=0;
+    for (int i=0;i<5;i++){
+        if (ns[i]==5){
+            EO = 1;
+            break;
+        }
+    }
+    return EO;
+}
+int main(){
+    int numes[5];
+    printf("Ingrese 5 valores enteros:\n");
+    for (int i=0;i<5;i++) {
+        scanf("%d", &numes[i]);
+    }
+    if (CEO(numes)) {
+        CIF(numes[0]);
+    } else {
+        CNI(numes);
+    }
+
+    return 0;
+}
